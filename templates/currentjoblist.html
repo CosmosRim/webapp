@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Curent Job List</h2>
+
+<!-- code to display list of jobs-->
+<table class="table table-hover table-bordered">
+    <tr>
+        <th>Job ID</th>
+        <th>Customer ID</th>
+        <th>Customer Name</th>
+        <th>Date</th> 
+    </tr>
+    {% for job in job_list %}
+    <tr>
+        {% for field in job.values() %}
+            {% if loop.index == 1 %}
+                <td class="text-primary text-decoration-underline" onclick="window.location.href='{{ generate_href(field) }}'"> {{field}} </td>
+            {% else %}
+                <td>{{field}}</td>
+            {% endif %}
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+<style>
+    /* Add this style block for hover effect */
+    table tr:hover {
+        background-color: #19325c; /* Change this color to your desired hover color */
+    }
+</style>
+
+{% endblock %}

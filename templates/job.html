@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+    <h1 class="mb-4">Job</h1>
+
+    <!-- Display job information -->
+    <div class="mb-4">
+        <h2>Job ID: {{ job.job_id }}</h2>
+        <p><strong>Date:</strong> {{ job.job_date }}</p>
+        <p><strong>Customer ID:</strong> {{ job.customer }}</p>
+        <p><strong>Status:</strong> {{ 'Completed' if job.completed else 'In Progress' }}</p>
+    </div>
+
+    <!-- List of services and parts already added to the job -->
+    <div class="mb-4">
+        <h3>Services Used</h3>
+        <ul>
+            {% for service in services %}
+            <li>{{ service.qty }}x {{ service.service_name }}</li>
+            {% endfor %}
+        </ul>
+
+        <h3>Parts Used</h3>
+        <ul>
+            {% for part in parts %}
+            <li>{{ part.qty }}x {{ part.part_name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Button to mark the job as completed -->
+    {% if not job.completed %}
+    <!-- Form to add a new service -->
+    <div class="mb-4">
+        <h3>Add Service</h3>
+        <form method="post" action="/job/{{ job.job_id }}/add_service" class="mb-3">
+            <div class="mb-3">
+                <label for="service" class="form-label">Service:</label>
+                <select name="service" id="service" class="form-select">
+                    {% for service in all_services %}
+                    <option value="{{ service.service_id }}">{{ service.service_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Quantity:</label>
+                <input type="number" name="service_quantity" id="service_quantity" class="form-control" min="1">
+            </div>
+            <input type="hidden" name="job_id" value="{{ job.job_id }}">
+            <button type="submit" class="btn btn-primary">Add Service</button>
+        </form>
+
+        <!-- Form to add a new part -->
+        <h3>Add Part</h3>
+        <form method="post" action="/job/{{ job.job_id }}/add_part" class="mb-3">
+            <div class="mb-3">
+                <label for="part" class="form-label">Part:</label>
+                <select name="part" id="part" class="form-select">
+                    {% for part in all_parts %}
+                    <option value="{{ part.part_id }}">{{ part.part_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Quantity:</label>
+                <input type="text" name="part_quantity" id="part_quantity" class="form-control" pattern="[1-9]\d*"
+                    title="Please enter a valid integer" required>
+            </div>
+            <input type="hidden" name="job_id" value="{{ job.job_id }}">
+        </form>
+    </div>
+    <form method="post" action="/job/{{ job.job_id }}/complete_job">
+        <button type="submit" class="btn btn-success">Mark as Completed</button>
+    </form>
+    {% else %}
+    <div class="mb-4">
+        <h3>
+            Total Cost: ${{ job.total_cost }}
+        </h3>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
