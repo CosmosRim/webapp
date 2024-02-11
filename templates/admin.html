@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+    <ul class="nav nav-tabs" id="myTabs">
+        <li class="nav-item">
+            <a class="nav-link active" id="tab1-tab" data-bs-toggle="tab" href="#tab1">
+                Customer List & Search
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tab2-tab" data-bs-toggle="tab" href="#tab2">
+                Add Customers, Parts, Services
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tab3-tab" data-bs-toggle="tab" href="#tab3">
+                Schedule Job
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tab4-tab" data-bs-toggle="tab" href="#tab4">
+                Unpaid Bills and Bill Payment
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tab5-tab" data-bs-toggle="tab" href="#tab5">
+				Bill History and Overdue Bill
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-2">
+        <div class="tab-pane fade show active" id="tab1">
+            <div class="container mt-5">
+                <h2 class="mb-4">Existing customers</h2>
+                <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search existing customers">
+
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Customer ID</th>
+                        <th>First Name</th>
+                        <th>Family Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                    </tr>
+                    </thead>
+        			{% for customer in customer_list %}
+        			    <tr>
+        			        {% for field in customer.values() %}
+        			            <td>{{field}}</td>
+        			        {% endfor %}
+        			    </tr>
+        			{% endfor %}
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="tab2">
+            <div class="container mt-5">
+                <div class="p-4">
+                    <h3>New Customer</h3>
+                    <form method="post" action="/">
+                        <div class="mb-3">
+                            <label for="inputField" class="form-label">Customer Name:</label>
+                            <input type="text" name="customer_name" id="customer_name" class="form-control" placeholder="Enter additional information">
+                        </div>
+                        <button type="submit" class="btn btn-success">Create New Customer</button>
+                    </form>
+                </div>
+                <div class="p-4">
+                    <h3>New Part</h3>
+                    <form method="post" action="/">
+                        <div class="mb-3">
+                            <label for="inputField" class="form-label">Part Name:</label>
+                            <input type="text" name="part_name" id="part_name" class="form-control" placeholder="Enter additional information">
+                        </div>
+                        <button type="submit" class="btn btn-success">Create New Part</button>
+                    </form>
+                </div>
+                <div class="p-4">
+                    <h3>New Service</h3>
+                    <form method="post" action="/">
+                        <div class="mb-3">
+                            <label for="inputField" class="form-label">Service Name:</label>
+                            <input type="text" name="service_name" id="service_name" class="form-control" placeholder="Enter additional information">
+                        </div>
+                        <button type="submit" class="btn btn-success">Create New Service</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="tab3">
+            <h3>Schedule Job</h3>
+            <p>This is the content for Tab 3.</p>
+        </div>
+        <div class="tab-pane fade" id="tab4">
+            <h3>List of unpaid bills</h3>
+            <table class="table table-hover table-bordered">
+                <tr>
+                    <th>Bill ID</th>
+                    <th>Customer</th>
+                    <th>Amount Due</th>
+                    <th>Payment Status</th>
+                </tr>
+        		{% for unpaid in unpaid_list %}
+        		    <tr>
+        		        {% for field in unpaid.values() %}
+        		            <td>{{field}}</td>
+        		        {% endfor %}
+        		    </tr>
+        		{% endfor %}
+            </table>
+        </div>
+		<div class="tab-pane fade" id="tab5">
+			<h3>Bill History</h3>
+            <table class="table table-hover table-bordered">
+                <tr>
+                    <th>Bill ID</th>
+                    <th>Customer</th>
+                    <th>Amount Due</th>
+                    <th>Payment Status</th>
+					<th>Overdue</th>
+                </tr>
+            </table>
+		</div>
+    </div>
+</div>
+
+{% endblock %}

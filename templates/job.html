@@ -68,6 +68,7 @@
                     title="Please enter a valid integer" required>
             </div>
             <input type="hidden" name="job_id" value="{{ job.job_id }}">
+            <button type="submit" class="btn btn-primary">Add Part</button>
         </form>
     </div>
     <form method="post" action="/job/{{ job.job_id }}/complete_job">
