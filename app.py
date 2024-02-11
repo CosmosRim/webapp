@@ -20,7 +20,7 @@ def getCursor():
     connection = mysql.connector.connect(user=connect.dbuser, \
     password=connect.dbpass, host=connect.dbhost, \
     database=connect.dbname, autocommit=True)
-    dbconn = connection.cursor()
+    dbconn = connection.cursor(dictionary=True)
     return dbconn
 
 @app.route("/")
@@ -48,7 +48,7 @@ def job_detail(job_id):
     job = connection.fetchone()
 
     # From job_part, job and part table query the part usage of this job
-    connection.execute("SELECT a.*, b.qty FROM part a JOIN job_part b ON a.part_id = b.part_id WHERE a.job_id = %s;", (job_id,))
+    connection.execute("SELECT a.*, b.qty FROM part a JOIN job_part b ON a.part_id = b.part_id WHERE b.job_id = %s;", (job_id,))
     parts = connection.fetchall()
 
     # From job_service, service and job table query the service usage of this job
@@ -118,6 +118,29 @@ def complete_job(job_id):
 
     # Render the template with the form
     return redirect(f"/job/{job_id}")
+
+# @app.route("/admin")
+# def admin():
+#     return redirect("/admin/tab1-tab")    
+
+@app.route("/admin")
+def admin():
+    connection = getCursor()
+
+    connection.execute("select a.customer_id, ifnull(a.first_name,'') first_name, ifnull(a.family_name,'') family_name, a.email, a.phone from customer a order by a.family_name,a.first_name;")
+    customerList = connection.fetchall()
+
+    connection.execute("SELECT a.job_id,concat(ifnull(b.first_name,''),' ',ifnull(b.family_name,'')) customer_name,a.job_date, a.paid FROM job a, customer b where a.paid=0 and a.customer=b.customer_id;")
+    unpaidList = connection.fetchall()
+
+    return render_template("admin.html", customer_list = customerList, unpaid_list = unpaidList)
+
+# @app.route("/admin/tab4-tab")
+# def admin_unpaid():
+#     connection = getCursor()
+#     connection.execute("SELECT a.job_id,concat(ifnull(b.first_name,''),' ',ifnull(b.family_name,'')) customer_name,a.job_date, a.paid FROM job a, customer b where a.paid=0 and a.customer=b.customer_id;")
+#     unpaidList = connection.fetchall()
+#     return render_template("admin.html", unpaid_list = unpaidList)
 
 if __name__ == '__main__':
     app.run()
