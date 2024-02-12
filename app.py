@@ -120,12 +120,15 @@ def complete_job(job_id):
     return redirect(f"/job/{job_id}")
 
 
-@app.route("/admin")
+@app.route("/admin", methods=['GET','POST'])
 def admin():
     connection = getCursor()
-    cust_name = request.form.get('searchInput')
+    # cust_name = request.form.get('searchInput')
+    cust_name = '' 
+    cust_nmae_query = f"%{cust_name}%"
+    cust_names = (cust_nmae_query, cust_nmae_query)
 
-    connection.execute("select a.customer_id , ifnull(a.first_name,'') first_name, ifnull(a.family_name,'') family_name, a.email, a.phone from customer a where UPPER(TRIM(concat(first_name,family_name))) LIKE upper('%%');")
+    connection.execute("select a.customer_id , ifnull(a.first_name,'') first_name, ifnull(a.family_name,'') family_name, a.email, a.phone from customer a where upper(trim(first_name)) like %s or upper(trim(family_name)) like %s", cust_names)
     customerList = connection.fetchall()
 
     connection.execute("SELECT a.job_id,concat(ifnull(b.first_name,''),' ',ifnull(b.family_name,'')) customer_name,a.job_date, a.paid FROM job a, customer b where a.paid=0 and a.customer=b.customer_id order by b.family_name, b.first_name, a.job_date;")
@@ -133,6 +136,14 @@ def admin():
 
     connection.execute("select ifnull(b.family_name,'') family_name, ifnull(b.first_name,'') first_name, a.job_date, a.total_cost, case when a.completed=1 then 'Yes' else 'No' end completed, case when a.paid=1 then 'Yes' else 'No' end paid, case when datediff(curdate(), a.job_date) > 14 and a.completed = 1 and a.paid = 0 then 'Yes' else 'No' end overdue from job a, customer b where a.customer=b.customer_id order by b.family_name, b.first_name, a.job_date;")
     billList = connection.fetchall()
+
+    if request.method == 'POST':
+        cust_name = request.form.get('searchInput')
+        cust_nmae_query = f"%{cust_name}%"
+        cust_names = (cust_nmae_query, cust_nmae_query)
+
+        connection.execute("select a.customer_id , ifnull(a.first_name,'') first_name, ifnull(a.family_name,'') family_name, a.email, a.phone from customer a where upper(trim(first_name)) like %s or upper(trim(family_name)) like %s", cust_names)
+        customerList = connection.fetchall()
 
     return render_template("admin.html", customer_list = customerList, unpaid_list = unpaidList, bill_list=billList)
 
