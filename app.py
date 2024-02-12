@@ -147,6 +147,26 @@ def admin():
 
     return render_template("admin.html", customer_list = customerList, unpaid_list = unpaidList, bill_list=billList)
 
+@app.route("/admin/add_cust", methods=['POST'])
+def add_customer():
+    connection = getCursor()
+    connection.execute("select max(a.customer_id)+1 new_id from customer a;")
+    cust_id = connection.fetchone()
+    cust_id = cust_id['new_id']
+
+    cust_first_name = request.form.get('customer_first_name')
+    cust_family_name = request.form.get('customer_family_name')
+    cust_email = request.form.get('customer_email')
+    cust_phone = request.form.get('customer_phone')
+    # Update database
+    print(f"customer_id:{cust_id}, customer_first_name: {cust_first_name}, customer_last_name: {cust_family_name}, custmer_email: {cust_email}, customer_phone:{cust_phone}")
+    # custload = (cust_id, cust_first_name, cust_family_name, cust_email,cust_phone)
+    inster_stmt=("INSERT INTO customer (customer_id, first_name, family_name, email, phone) VALUES (%s, %s, %s, %s, %s)")
+    data = (cust_id, cust_first_name, cust_family_name, cust_email,cust_phone)
+    connection.execute(inster_stmt, data)
+    # connection.close()
+
+    return redirect("/admin")
 
 if __name__ == '__main__':
     app.run()

@@ -10,7 +10,17 @@
         </li>
         <li class="nav-item">
             <a class="nav-link" id="tab2-tab" data-bs-toggle="tab" href="#tab2">
-                Add Customers, Parts, Services
+                Add Customers
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tab6-tab" data-bs-toggle="tab" href="#tab6">
+                Add Parts
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tab7-tab" data-bs-toggle="tab" href="#tab7">
+                Add Services
             </a>
         </li>
         <li class="nav-item">
@@ -64,17 +74,24 @@
             <div class="container mt-5">
                 <div class="p-4">
                     <h3>New Customer</h3>
-                    <form method="post" action="/">
+                    <form method="post" action="/admin/add_cust">
                         <div class="mb-3">
                             <label for="inputField" class="form-label">Customer Name:</label>
-                            <input type="text" name="customer_name" id="customer_name" class="form-control" placeholder="Enter additional information">
+                            <input type="text" name="customer_first_name" id="customer_first_name" class="form-control" placeholder="Please enter customer First Name" pattern="[A-Za-z\s]+">
+                            <input type="text" name="customer_family_name" id="customer_family_name" class="form-control" placeholder="Please enter customer Family Name" pattern="[A-Za-z\s]+">
+                            <input type="text" name="customer_email" id="customer_email" class="form-control" placeholder="Please enter customer email" pattern="[A-Za-z\s@.]+">
+                            <input type="text" name="customer_phone" id="customer_phone" class="form-control" placeholder="Please enter customer phone" pattern="[0-9]+">
                         </div>
                         <button type="submit" class="btn btn-success">Create New Customer</button>
                     </form>
                 </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="tab6">
+            <div class="container mt-5">
                 <div class="p-4">
                     <h3>New Part</h3>
-                    <form method="post" action="/">
+                    <form method="post" action="/admin/add_part">
                         <div class="mb-3">
                             <label for="inputField" class="form-label">Part Name:</label>
                             <input type="text" name="part_name" id="part_name" class="form-control" placeholder="Enter additional information">
@@ -82,9 +99,13 @@
                         <button type="submit" class="btn btn-success">Create New Part</button>
                     </form>
                 </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="tab7">
+            <div class="container mt-5">
                 <div class="p-4">
                     <h3>New Service</h3>
-                    <form method="post" action="/">
+                    <form method="post" action="/admin/add_svc">
                         <div class="mb-3">
                             <label for="inputField" class="form-label">Service Name:</label>
                             <input type="text" name="service_name" id="service_name" class="form-control" placeholder="Enter additional information">
