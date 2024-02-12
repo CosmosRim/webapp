@@ -8,6 +8,7 @@ from datetime import datetime
 import mysql.connector
 from mysql.connector import FieldType
 import connect
+from decimal import Decimal
 
 app = Flask(__name__)
 
@@ -143,6 +144,13 @@ def admin():
     connection.execute("select a.part_id, a.part_name, a.cost from part a;")
     partList = connection.fetchall()
 
+    connection.execute("select a.customer_id, ifnull(a.first_name, '') first_name, a.family_name from customer a order by ifnull(a.first_name, 'ZZZZ'), ifnull(a.family_name, 'ZZZZ');")
+    all_customer = connection.fetchall()
+    connection.execute("SELECT * FROM service")
+    all_services = connection.fetchall()
+    connection.execute("SELECT * FROM part")
+    all_parts = connection.fetchall()
+
     if request.method == 'POST':
         cust_name = request.form.get('searchInput')
         cust_nmae_query = f"%{cust_name}%"
@@ -151,7 +159,7 @@ def admin():
         connection.execute("select a.customer_id , ifnull(a.first_name,'') first_name, ifnull(a.family_name,'') family_name, a.email, a.phone from customer a where upper(trim(first_name)) like %s or upper(trim(family_name)) like %s", cust_names)
         customerList = connection.fetchall()
     
-    return render_template("admin.html", customer_list = customerList, unpaid_list = unpaidList, bill_list=billList, service_list=serviceList, part_list=partList)
+    return render_template("admin.html", customer_list = customerList, unpaid_list = unpaidList, bill_list=billList, service_list=serviceList, part_list=partList, all_customer=all_customer, all_services=all_services, all_parts=all_parts)
 
 @app.route("/admin/add_cust", methods=['POST'])
 def add_customer():
@@ -208,6 +216,43 @@ def add_service():
 
     return redirect(url_for("admin", anchor='tab7'))
 
+@app.route("/admin/schedule_job", methods=['POST'])
+def add_job():
+    cust_id = request.form.get('customer')
+    date = request.form.get('date')
+    svc_id = request.form.get('service')
+    svc_qty = request.form.get('service_quantity')
+    part_id = request.form.get('part')
+    part_qty = request.form.get('part_quantity')
+
+    connection = getCursor()
+    connection.execute("select max(a.job_id)+1 new_id from job a;")
+    job_id = connection.fetchone()
+    job_id = job_id['new_id']
+
+    connection.execute("select cost from part where part_id=%s", (part_id,))
+    part_price = connection.fetchone()
+    part_price = part_price['cost']
+    connection.execute("select cost from service where service_id=%s", (svc_id,))
+    svc_price = connection.fetchone()
+    svc_price = svc_price['cost']
+    total_cost = Decimal(svc_qty) * svc_price + Decimal(part_qty) * part_price
+
+    # Update database
+    print(f"job_id:{job_id}, date:{date}, customer_id:{cust_id}, service_id: {svc_id}, service_quentity: {svc_qty}, part_id:{part_id}, part_quentity:{part_qty}, total_cost:{total_cost}")
+    inster_stmt=("INSERT INTO job (job_id, job_date, customer, total_cost, completed, paid) VALUES (%s, %s, %s, %s, %s, %s)")
+    data = (job_id, date, cust_id, total_cost, "0", "0")
+    connection.execute(inster_stmt, data)
+    
+    inster_stmt=("insert into job_part (job_id, part_id, qty) values (%s, %s, %s)")
+    data = (job_id, part_id, part_qty)
+    connection.execute(inster_stmt, data)
+
+    inster_stmt=("insert into job_service (job_id, service_id, qty) values (%s, %s, %s)")
+    data = (job_id, svc_id, part_qty)
+    connection.execute(inster_stmt, data)
+
+    return redirect(url_for("admin", anchor='tab3'))
 
 if __name__ == '__main__':
     app.run()
