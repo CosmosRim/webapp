@@ -94,10 +94,28 @@
                     <form method="post" action="/admin/add_part">
                         <div class="mb-3">
                             <label for="inputField" class="form-label">Part Name:</label>
-                            <input type="text" name="part_name" id="part_name" class="form-control" placeholder="Enter additional information">
+                            <input type="text" name="part_name" id="part_name" class="form-control" placeholder="Enter part name">
+                            <input type="text" name="part_price" id="part_price" class="form-control" placeholder="Enter part price" pattern="[0-9.]+">
                         </div>
                         <button type="submit" class="btn btn-success">Create New Part</button>
                     </form>
+                    <h3>Current Part</h3>
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Part ID</th>
+                            <th>Part Name</th>
+                            <th>Cost</th>
+                        </tr>
+                        </thead>
+        			    {% for part in part_list %}
+        			        <tr>
+        			            {% for field in part.values() %}
+        			                <td>{{field}}</td>
+        			            {% endfor %}
+        			        </tr>
+        			    {% endfor %}
+                    </table>
                 </div>
             </div>
         </div>
@@ -109,9 +127,27 @@
                         <div class="mb-3">
                             <label for="inputField" class="form-label">Service Name:</label>
                             <input type="text" name="service_name" id="service_name" class="form-control" placeholder="Enter additional information">
+                            <input type="text" name="service_price" id="service_price" class="form-control" placeholder="Enter part price" pattern="[0-9.]+">
                         </div>
                         <button type="submit" class="btn btn-success">Create New Service</button>
                     </form>
+                    <h3>Current Service</h3>
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Service ID</th>
+                            <th>Service Name</th>
+                            <th>Cost</th>
+                        </tr>
+                        </thead>
+        			    {% for service in service_list %}
+        			        <tr>
+        			            {% for field in service.values() %}
+        			                <td>{{field}}</td>
+        			            {% endfor %}
+        			        </tr>
+        			    {% endfor %}
+                    </table>
                 </div>
             </div>
         </div>

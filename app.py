@@ -137,6 +137,12 @@ def admin():
     connection.execute("select ifnull(b.family_name,'') family_name, ifnull(b.first_name,'') first_name, a.job_date, a.total_cost, case when a.completed=1 then 'Yes' else 'No' end completed, case when a.paid=1 then 'Yes' else 'No' end paid, case when datediff(curdate(), a.job_date) > 14 and a.completed = 1 and a.paid = 0 then 'Yes' else 'No' end overdue from job a, customer b where a.customer=b.customer_id order by b.family_name, b.first_name, a.job_date;")
     billList = connection.fetchall()
 
+    connection.execute("select a.service_id, a.service_name, a.cost from spb.service a;")
+    serviceList = connection.fetchall()
+
+    connection.execute("select a.part_id, a.part_name, a.cost from part a;")
+    partList = connection.fetchall()
+
     if request.method == 'POST':
         cust_name = request.form.get('searchInput')
         cust_nmae_query = f"%{cust_name}%"
@@ -144,8 +150,8 @@ def admin():
 
         connection.execute("select a.customer_id , ifnull(a.first_name,'') first_name, ifnull(a.family_name,'') family_name, a.email, a.phone from customer a where upper(trim(first_name)) like %s or upper(trim(family_name)) like %s", cust_names)
         customerList = connection.fetchall()
-
-    return render_template("admin.html", customer_list = customerList, unpaid_list = unpaidList, bill_list=billList)
+    
+    return render_template("admin.html", customer_list = customerList, unpaid_list = unpaidList, bill_list=billList, service_list=serviceList, part_list=partList)
 
 @app.route("/admin/add_cust", methods=['POST'])
 def add_customer():
@@ -166,8 +172,42 @@ def add_customer():
     connection.execute(inster_stmt, data)
     # connection.close()
 
-    return redirect("/admin")
+    return redirect(url_for("admin", anchor='tab2'))
+
+@app.route("/admin/add_part", methods=['POST'])
+def add_part():
+    connection = getCursor()
+    connection.execute("select max(a.part_id)+1 new_id from part a;")
+    part_id = connection.fetchone()
+    part_id = part_id['new_id']
+
+    part_name = request.form.get('part_name')
+    part_price = request.form.get('part_price')
+    # Update database
+    print(f"part_id:{part_id}, part_name: {part_name}, part_price: {part_price}")
+    inster_stmt=("INSERT INTO part (part_id, part_name, cost) VALUES (%s, %s, %s)")
+    data = (part_id, part_name, part_price)
+    connection.execute(inster_stmt, data)
+
+    return redirect(url_for("admin", anchor='tab6'))
+
+@app.route("/admin/add_svc", methods=['POST'])
+def add_service():
+    connection = getCursor()
+    connection.execute("select max(a.service_id)+1 new_id from service a;")
+    svc_id = connection.fetchone()
+    svc_id = svc_id['new_id']
+
+    svc_name = request.form.get('service_name')
+    svc_price = request.form.get('service_price')
+    # Update database
+    print(f"service_id:{svc_id}, service_name: {svc_name}, service_price: {svc_price}")
+    inster_stmt=("INSERT INTO service (service_id, service_name, cost) VALUES (%s, %s, %s)")
+    data = (svc_id, svc_name, svc_price)
+    connection.execute(inster_stmt, data)
+
+    return redirect(url_for("admin", anchor='tab7'))
+
 
 if __name__ == '__main__':
     app.run()
-
