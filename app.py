@@ -119,28 +119,23 @@ def complete_job(job_id):
     # Render the template with the form
     return redirect(f"/job/{job_id}")
 
-# @app.route("/admin")
-# def admin():
-#     return redirect("/admin/tab1-tab")    
 
 @app.route("/admin")
 def admin():
     connection = getCursor()
+    cust_name = request.form.get('searchInput')
 
-    connection.execute("select a.customer_id, ifnull(a.first_name,'') first_name, ifnull(a.family_name,'') family_name, a.email, a.phone from customer a order by a.family_name,a.first_name;")
+    connection.execute("select a.customer_id , ifnull(a.first_name,'') first_name, ifnull(a.family_name,'') family_name, a.email, a.phone from customer a where UPPER(TRIM(concat(first_name,family_name))) LIKE upper('%%');")
     customerList = connection.fetchall()
 
-    connection.execute("SELECT a.job_id,concat(ifnull(b.first_name,''),' ',ifnull(b.family_name,'')) customer_name,a.job_date, a.paid FROM job a, customer b where a.paid=0 and a.customer=b.customer_id;")
+    connection.execute("SELECT a.job_id,concat(ifnull(b.first_name,''),' ',ifnull(b.family_name,'')) customer_name,a.job_date, a.paid FROM job a, customer b where a.paid=0 and a.customer=b.customer_id order by b.family_name, b.first_name, a.job_date;")
     unpaidList = connection.fetchall()
 
-    return render_template("admin.html", customer_list = customerList, unpaid_list = unpaidList)
+    connection.execute("select ifnull(b.family_name,'') family_name, ifnull(b.first_name,'') first_name, a.job_date, a.total_cost, case when a.completed=1 then 'Yes' else 'No' end completed, case when a.paid=1 then 'Yes' else 'No' end paid, case when datediff(curdate(), a.job_date) > 14 and a.completed = 1 and a.paid = 0 then 'Yes' else 'No' end overdue from job a, customer b where a.customer=b.customer_id order by b.family_name, b.first_name, a.job_date;")
+    billList = connection.fetchall()
 
-# @app.route("/admin/tab4-tab")
-# def admin_unpaid():
-#     connection = getCursor()
-#     connection.execute("SELECT a.job_id,concat(ifnull(b.first_name,''),' ',ifnull(b.family_name,'')) customer_name,a.job_date, a.paid FROM job a, customer b where a.paid=0 and a.customer=b.customer_id;")
-#     unpaidList = connection.fetchall()
-#     return render_template("admin.html", unpaid_list = unpaidList)
+    return render_template("admin.html", customer_list = customerList, unpaid_list = unpaidList, bill_list=billList)
+
 
 if __name__ == '__main__':
     app.run()

@@ -31,8 +31,8 @@
 
     <!-- Button to mark the job as completed -->
     {% if not job.completed %}
-    <!-- Form to add a new service -->
     <div class="mb-4">
+        <!-- Form to add a new service -->
         <h3>Add Service</h3>
         <form method="post" action="/job/{{ job.job_id }}/add_service" class="mb-3">
             <div class="mb-3">
