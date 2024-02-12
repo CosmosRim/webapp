@@ -137,7 +137,7 @@ def admin():
     connection.execute("select ifnull(b.family_name,'') family_name, ifnull(b.first_name,'') first_name, a.job_date, a.total_cost, case when a.completed=1 then 'Yes' else 'No' end completed, case when a.paid=1 then 'Yes' else 'No' end paid, case when datediff(curdate(), a.job_date) > 14 and a.completed = 1 and a.paid = 0 then 'Yes' else 'No' end overdue from job a, customer b where a.customer=b.customer_id order by b.family_name, b.first_name, a.job_date;")
     billList = connection.fetchall()
 
-    connection.execute("select a.service_id, a.service_name, a.cost from spb.service a;")
+    connection.execute("select a.service_id, a.service_name, a.cost from service a;")
     serviceList = connection.fetchall()
 
     connection.execute("select a.part_id, a.part_name, a.cost from part a;")
