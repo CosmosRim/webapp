@@ -200,7 +200,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="quantity" class="form-label">Quantity:</label>
-                            <input type="number" name="service_quantity" id="service_quantity" class="form-control" min="1" max="9">
+                            <input type="number" name="service_quantity" id="service_quantity" class="form-control" min="0" max="9" value="0">
                         </div>
                         <div class="mb-3">
                             <label for="part" class="form-label">Part:</label>
@@ -212,7 +212,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="quantity" class="form-label">Quantity:</label>
-                            <input type="number" name="part_quantity" id="part_quantity" class="form-control" min="1" max="9">
+                            <input type="number" name="part_quantity" id="part_quantity" class="form-control" min="0" max="9" value="0">
                         </div>
                         <button type="submit" class="btn btn-success">Schedule a new job</button>
                     </form>
@@ -228,38 +228,39 @@
                         <th>Customer</th>
                         <th>Amount Due</th>
                         <th>Payment Status</th>
-                        <!-- <th>Operation</th> -->
+                        <th>Payment Operation</th>
                     </tr>
         		    {%for unpaid in unpaid_list %}
         		       <tr>
         		            {% for field in unpaid.values() %}
         		                <td>{{field}}</td>
         		            {% endfor %}
-							<!-- <td>
+							<td>
 								<form method="POST" action="/admin/update_bill">
-									<input type="hidden" name="bill_id" value="{{ unpaid[0] }}">
+									<input type="hidden" name="bill_id" value="{{ unpaid['job_id'] }}">
 									<select name="payment_status">
 										<option value=0 >No</option>
 										<option value=1 >Yes</option>
 									</select>
 									<button type="submit">Update</button>
 								</form>
-							</td> -->
+							</td>
         		       </tr>
         		    {%endfor %}
                 </table>
                 <h3>Pay bill</h3>
 				<div class="d-flex align-items-center">
 				    <form method="POST" action="/admin/update_bill" class="row g-2">
-				    <div class="col-md-4">
-				        <label for="quantity" class="form-label">Bill Id for pay:</label>
-					</div>
-				    <div class="col-md-3">
-				    	<input type="number" name="bill_id" id="bill_id" class="form-control" min="1">
-					</div>
-				    <div class="col-md-2">
-				    	<button type="submit" class="btn btn-success">Pay</button>
-					</div>
+						<input type="hidden" name="payment_status" value="1">
+				        <div class="col-md-3">
+				            <label for="quantity" class="form-label">Pay bill:</label>
+					    </div>
+				        <div class="col-md-3">
+				    		<input type="number" name="bill_id" id="bill_id" class="form-control"  min="1">
+				    	</div>
+				        <div class="col-md-2">
+				        	<button type="submit" class="btn btn-success">Pay</button>
+				    	</div>
 					</form>
 				</div>
 			</div>
@@ -279,7 +280,11 @@
 			        		<th>Overdue</th>
                         </tr>
                 		{% for bill in bill_list %}
-                		    <tr>
+						    {% if bill['overdue'] == 'Yes' %}
+							    <tr class="table-danger">
+							{% else %}
+                		        <tr>
+							{% endif %}
                 		        {% for field in bill.values() %}
                 		            <td>{{field}}</td>
                 		        {% endfor %}

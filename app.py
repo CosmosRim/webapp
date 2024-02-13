@@ -256,7 +256,7 @@ def add_customer():
     connection.execute(inster_stmt, data)
     # connection.close()
 
-    return redirect(url_for("admin", anchor='tab2'))
+    return redirect(url_for("admin", _anchor='tab2-tab'))
 
 @app.route("/admin/add_part", methods=['POST'])
 def add_part():
@@ -273,7 +273,7 @@ def add_part():
     data = (part_id, part_name, part_price)
     connection.execute(inster_stmt, data)
 
-    return redirect(url_for("admin", anchor='tab6'))
+    return redirect(url_for("admin", _anchor='tab6'))
 
 @app.route("/admin/add_svc", methods=['POST'])
 def add_service():
@@ -290,7 +290,7 @@ def add_service():
     data = (svc_id, svc_name, svc_price)
     connection.execute(inster_stmt, data)
 
-    return redirect(url_for("admin", anchor='tab7'))
+    return redirect(url_for("admin", _anchor='tab7-tab'))
 
 @app.route("/admin/schedule_job", methods=['POST'])
 def add_job():
@@ -331,21 +331,21 @@ def add_job():
     data = (job_id, svc_id, part_qty)
     connection.execute(inster_stmt, data)
 
-    return redirect(url_for("admin", anchor='tab3'))
+    return redirect(url_for("admin", _anchor='tab3-tab'))
 
 @app.route("/admin/update_bill", methods=['POST'])
-def update_bills():
+def update_bill():
 
     bill_id = request.form.get('bill_id')
-    # bill_status = request.form.get('payment_status')
+    bill_status = request.form.get('payment_status')
     # Update database
-    # print(request.form)
-    # print(bill_id:{bill_id}, payment_status: {bill_status}")
-    update_stmt=("update job a set a.paid=1 where a.job_id=%s;")
+    print(f"bill_id:{bill_id}, payment_status: {bill_status}")
+    update_stmt=("update job a set a.paid=%s where a.job_id=%s;")
+    data = (bill_status, bill_id)
     connection = getCursor()
-    connection.execute(update_stmt, (bill_id,))
+    connection.execute(update_stmt, data)
 
-    return redirect(url_for("admin", anchor='tab4'))
+    return redirect(url_for("admin", _anchor='tab4-tab'))
 
 if __name__ == '__main__':
     app.run()
