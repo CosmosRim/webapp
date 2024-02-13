@@ -36,7 +36,16 @@ def generate_href(field_value):
 def currentjobs():
     connection = getCursor()
     # add customers' name combine togther, add customer table for query
-    connection.execute("SELECT a.job_id,a.customer,concat(ifnull(b.first_name,''),' ',ifnull(b.family_name,'')) customer_name,a.job_date FROM job a, customer b where a.completed=0 and a.customer=b.customer_id;")
+    connection.execute('''
+        select a.job_id,
+               a.customer,
+               concat(ifnull(b.first_name, ''), ' ', ifnull(b.family_name, '')) customer_name,
+               a.job_date
+        from job a,
+             customer b
+        where a.completed = 0
+          and a.customer = b.customer_id;
+        ''')
     jobList = connection.fetchall()
     return render_template("currentjoblist.html", job_list = jobList, generate_href=generate_href)    
 
@@ -49,11 +58,23 @@ def job_detail(job_id):
     job = connection.fetchone()
 
     # From job_part, job and part table query the part usage of this job
-    connection.execute("SELECT a.*, b.qty FROM part a JOIN job_part b ON a.part_id = b.part_id WHERE b.job_id = %s;", (job_id,))
+    connection.execute('''
+                       select a.*, b.qty
+                         from part a
+                         join job_part b
+                           on a.part_id = b.part_id
+                        where b.job_id = %s;
+                       ''' , (job_id,))
     parts = connection.fetchall()
 
     # From job_service, service and job table query the service usage of this job
-    connection.execute("SELECT a.*, b.qty FROM service a JOIN job_service b ON a.service_id = b.service_id WHERE b.job_id = %s", (job_id,))
+    connection.execute('''
+                       select a.*, b.qty
+                         from service a
+                         join job_service b
+                           on a.service_id = b.service_id
+                        where b.job_id = %s;
+                       ''', (job_id,))
     services = connection.fetchall()
 
     # Fetch lists of all available services and parts for adding to the job
@@ -69,8 +90,8 @@ def job_detail(job_id):
     for service in services:
         service_costs += (service['qty'] * service['cost'])
 
-    payload = (part_costs + service_costs, job_id)
-    connection.execute("UPDATE job SET total_cost = %s where job_id = %s", payload)
+    data = (part_costs + service_costs, job_id)
+    connection.execute("UPDATE job SET total_cost = %s where job_id = %s", data)
 
     return render_template("job.html",
                            job=job,
@@ -88,8 +109,8 @@ def add_part_to_job(job_id):
     qty = request.form.get('part_quantity')
     # Update database
     print(f"Part ID: {part}, Quantity: {qty}, Job ID: {job_id}")
-    payload = (job_id, part, qty)
-    connection.execute("INSERT INTO job_part (job_id, part_id, qty) VALUES (%s, %s, %s)", payload)
+    data = (job_id, part, qty)
+    connection.execute("INSERT INTO job_part (job_id, part_id, qty) VALUES (%s, %s, %s)", data)
 
     return redirect(f"/job/{job_id}")
 
@@ -103,8 +124,8 @@ def add_service_to_job(job_id):
 
     # Update database
     print(f"Service ID: {service}, Quantity: {qty}, Job ID: {job_id}")
-    payload = (job_id, service, qty)
-    connection.execute("INSERT INTO job_service (job_id, service_id, qty) VALUES (%s, %s, %s)", payload)
+    data = (job_id, service, qty)
+    connection.execute("INSERT INTO job_service (job_id, service_id, qty) VALUES (%s, %s, %s)", data)
 
     return redirect(f"/job/{job_id}")
 
@@ -114,8 +135,8 @@ def complete_job(job_id):
     connection = getCursor()
     # Update database
     print(f"Completing Job ID: {job_id}")
-    payload = ("1", job_id)
-    connection.execute("UPDATE job SET completed = %s where job_id = %s", payload)
+    data = ("1", job_id)
+    connection.execute("UPDATE job SET completed = %s where job_id = %s", data)
 
     # Render the template with the form
     return redirect(f"/job/{job_id}")
@@ -127,15 +148,52 @@ def admin():
     # cust_name = request.form.get('searchInput')
     cust_name = '' 
     cust_nmae_query = f"%{cust_name}%"
-    cust_names = (cust_nmae_query, cust_nmae_query)
+    cust_names = (cust_nmae_query, cust_nmae_query, cust_nmae_query)
 
-    connection.execute("select a.customer_id , ifnull(a.first_name,'') first_name, ifnull(a.family_name,'') family_name, a.email, a.phone from customer a where upper(trim(first_name)) like %s or upper(trim(family_name)) like %s", cust_names)
+    connection.execute('''
+        select a.customer_id,
+               ifnull(a.first_name, '')  first_name,
+               ifnull(a.family_name, '') family_name,
+               a.email,
+               a.phone
+          from customer a
+         where upper(replace(first_name, ' ', '')) like upper(replace(%s, ' ', ''))
+            or upper(replace(family_name, ' ', '')) like upper(replace(%s, ' ', ''))
+            or upper(replace(concat(ifnull(a.first_name, ' '), ' ', ifnull(a.family_name, ' ')), ' ', ''))
+               like upper(replace(%s, ' ', ''));
+        ''', cust_names)
     customerList = connection.fetchall()
 
-    connection.execute("SELECT a.job_id,concat(ifnull(b.first_name,''),' ',ifnull(b.family_name,'')) customer_name,a.job_date, a.paid FROM job a, customer b where a.paid=0 and a.customer=b.customer_id order by b.family_name, b.first_name, a.job_date;")
+    connection.execute('''
+        select a.job_id,
+               concat(ifnull(b.first_name, ''), ' ', ifnull(b.family_name, '')) customer_name,
+               a.job_date,
+               case when a.paid = 1 then 'Yes' else 'No' end                    paid
+        from job a,
+             customer b
+        where a.paid = 0
+          and a.customer = b.customer_id
+        order by b.family_name, b.first_name, a.job_date;
+        ''')
     unpaidList = connection.fetchall()
 
-    connection.execute("select ifnull(b.family_name,'') family_name, ifnull(b.first_name,'') first_name, a.job_date, a.total_cost, case when a.completed=1 then 'Yes' else 'No' end completed, case when a.paid=1 then 'Yes' else 'No' end paid, case when datediff(curdate(), a.job_date) > 14 and a.completed = 1 and a.paid = 0 then 'Yes' else 'No' end overdue from job a, customer b where a.customer=b.customer_id order by b.family_name, b.first_name, a.job_date;")
+    connection.execute('''
+        select ifnull(b.family_name, '')                          family_name,
+               ifnull(b.first_name, '')                           first_name,
+               a.job_date,
+               a.total_cost,
+               case when a.completed = 1 then 'Yes' else 'No' end completed,
+               case when a.paid = 1 then 'Yes' else 'No' end      paid,
+               case when datediff(curdate(), a.job_date) > 14
+                     and a.completed = 1 and a.paid = 0
+                    then 'Yes'
+                    else 'No'
+               end                                                overdue
+        from job a,
+             customer b
+        where a.customer = b.customer_id
+        order by b.family_name, b.first_name, a.job_date;
+        ''')
     billList = connection.fetchall()
 
     connection.execute("select a.service_id, a.service_name, a.cost from service a;")
@@ -144,7 +202,13 @@ def admin():
     connection.execute("select a.part_id, a.part_name, a.cost from part a;")
     partList = connection.fetchall()
 
-    connection.execute("select a.customer_id, ifnull(a.first_name, '') first_name, a.family_name from customer a order by ifnull(a.first_name, 'ZZZZ'), ifnull(a.family_name, 'ZZZZ');")
+    connection.execute('''
+                       select a.customer_id,
+                              ifnull(a.first_name, '') first_name,
+                              ifnull(a.family_name, '') family_name
+                       from customer a
+                       order by ifnull(a.first_name, 'ZZZZ'), ifnull(a.family_name, 'ZZZZ');
+                       ''')
     all_customer = connection.fetchall()
     connection.execute("SELECT * FROM service")
     all_services = connection.fetchall()
@@ -154,9 +218,20 @@ def admin():
     if request.method == 'POST':
         cust_name = request.form.get('searchInput')
         cust_nmae_query = f"%{cust_name}%"
-        cust_names = (cust_nmae_query, cust_nmae_query)
+        cust_names = (cust_nmae_query, cust_nmae_query, cust_nmae_query)
 
-        connection.execute("select a.customer_id , ifnull(a.first_name,'') first_name, ifnull(a.family_name,'') family_name, a.email, a.phone from customer a where upper(trim(first_name)) like %s or upper(trim(family_name)) like %s", cust_names)
+        connection.execute('''
+            select a.customer_id,
+                   ifnull(a.first_name, '')  first_name,
+                   ifnull(a.family_name, '') family_name,
+                   a.email,
+                   a.phone
+              from customer a
+             where upper(replace(first_name, ' ', '')) like upper(replace(%s, ' ', ''))
+                or upper(replace(family_name, ' ', '')) like upper(replace(%s, ' ', ''))
+                or upper(replace(concat(ifnull(a.first_name, ' '), ' ', ifnull(a.family_name, ' ')), ' ', ''))
+                   like upper(replace(%s, ' ', ''));
+            ''', cust_names)
         customerList = connection.fetchall()
     
     return render_template("admin.html", customer_list = customerList, unpaid_list = unpaidList, bill_list=billList, service_list=serviceList, part_list=partList, all_customer=all_customer, all_services=all_services, all_parts=all_parts)
@@ -174,8 +249,9 @@ def add_customer():
     cust_phone = request.form.get('customer_phone')
     # Update database
     print(f"customer_id:{cust_id}, customer_first_name: {cust_first_name}, customer_last_name: {cust_family_name}, custmer_email: {cust_email}, customer_phone:{cust_phone}")
-    # custload = (cust_id, cust_first_name, cust_family_name, cust_email,cust_phone)
-    inster_stmt=("INSERT INTO customer (customer_id, first_name, family_name, email, phone) VALUES (%s, %s, %s, %s, %s)")
+    inster_stmt=('''
+                INSERT INTO customer (customer_id, first_name, family_name, email, phone) 
+                VALUES (%s, %s, %s, %s, %s)''')
     data = (cust_id, cust_first_name, cust_family_name, cust_email,cust_phone)
     connection.execute(inster_stmt, data)
     # connection.close()
@@ -240,7 +316,10 @@ def add_job():
 
     # Update database
     print(f"job_id:{job_id}, date:{date}, customer_id:{cust_id}, service_id: {svc_id}, service_quentity: {svc_qty}, part_id:{part_id}, part_quentity:{part_qty}, total_cost:{total_cost}")
-    inster_stmt=("INSERT INTO job (job_id, job_date, customer, total_cost, completed, paid) VALUES (%s, %s, %s, %s, %s, %s)")
+    inster_stmt=('''
+                INSERT INTO job (job_id, job_date, customer, total_cost, completed, paid) 
+                VALUES (%s, %s, %s, %s, %s, %s)
+                ''')
     data = (job_id, date, cust_id, total_cost, "0", "0")
     connection.execute(inster_stmt, data)
     

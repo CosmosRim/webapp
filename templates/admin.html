@@ -72,24 +72,22 @@
         </div>
         <div class="tab-pane fade" id="tab2">
             <div class="container mt-5">
-                <div class="p-4">
-                    <h3>New Customer</h3>
-                    <form method="post" action="/admin/add_cust">
-                        <div class="mb-3">
-                            <label for="inputField" class="form-label">Customer Name:</label>
-                            <input type="text" name="customer_first_name" id="customer_first_name" class="form-control" placeholder="Please enter customer First Name" pattern="[A-Za-z\s]+">
-                            <input type="text" name="customer_family_name" id="customer_family_name" class="form-control" placeholder="Please enter customer Family Name" pattern="[A-Za-z\s]+">
-                            <input type="text" name="customer_email" id="customer_email" class="form-control" placeholder="Please enter customer email" pattern="[A-Za-z\s@.]+">
-                            <input type="text" name="customer_phone" id="customer_phone" class="form-control" placeholder="Please enter customer phone" pattern="[0-9]+">
-                        </div>
-                        <button type="submit" class="btn btn-success">Create New Customer</button>
-                    </form>
-                </div>
+                <h3 class="mb-4">New Customer</h3>
+                <form method="post" action="/admin/add_cust">
+                    <div class="mb-3">
+                        <label for="inputField" class="form-label">Customer Name:</label>
+                        <input type="text" name="customer_first_name" id="customer_first_name" class="form-control" placeholder="Please enter customer First Name" pattern="[A-Za-z\s]+">
+                        <input type="text" name="customer_family_name" id="customer_family_name" class="form-control" placeholder="Please enter customer Family Name" pattern="[A-Za-z\s]+">
+                        <input type="text" name="customer_email" id="customer_email" class="form-control" placeholder="Please enter customer email" pattern="[0-9A-Za-z\s@.]+">
+                        <input type="text" name="customer_phone" id="customer_phone" class="form-control" placeholder="Please enter customer phone" pattern="[0-9]+">
+                    </div>
+                    <button type="submit" class="btn btn-success">Create New Customer</button>
+                </form>
             </div>
         </div>
         <div class="tab-pane fade" id="tab6">
             <div class="container mt-5">
-                <div class="p-4">
+                <div class="mb-4">
                     <h3>New Part</h3>
                     <form method="post" action="/admin/add_part">
                         <div class="mb-3">
@@ -121,7 +119,7 @@
         </div>
         <div class="tab-pane fade" id="tab7">
             <div class="container mt-5">
-                <div class="p-4">
+                <div class="mb-4">
                     <h3>New Service</h3>
                     <form method="post" action="/admin/add_svc">
                         <div class="mb-3">
@@ -153,8 +151,8 @@
         </div>
         <div class="tab-pane fade" id="tab3">
             <div class="container mt-5">
-                <div class="p-4">
-                    <h3>Schedule Job</h3>
+                <div class="mb-4">
+                    <h3>Schedule a new job</h3>
                     <form method="post" action="/admin/schedule_job">
                         <div class="mb-3">
                             <label for="customer" class="form-label">Customer:</label>
@@ -198,43 +196,49 @@
             </div>
         </div>
         <div class="tab-pane fade" id="tab4">
-            <h3>List of unpaid bills</h3>
-            <table class="table table-hover table-bordered">
-                <tr>
-                    <th>Bill ID</th>
-                    <th>Customer</th>
-                    <th>Amount Due</th>
-                    <th>Payment Status</th>
-                </tr>
-        		{% for unpaid in unpaid_list %}
-        		    <tr>
-        		        {% for field in unpaid.values() %}
-        		            <td>{{field}}</td>
-        		        {% endfor %}
-        		    </tr>
-        		{% endfor %}
-            </table>
+            <div class="container mt-5">
+                <h3>All unpaid bills</h3>
+                <table class="table table-hover table-bordered">
+                    <tr>
+                        <th>Bill ID</th>
+                        <th>Customer</th>
+                        <th>Amount Due</th>
+                        <th>Payment Status</th>
+                    </tr>
+        		    {%for unpaid in unpaid_list %}
+        		       <tr>
+        		           {% for field in unpaid.values() %}
+        		               <td>{{field}}</td>
+        		           {% endfor %}
+        		       </tr>
+        		    {%endfor %}
+                </table>
+			</div>
         </div>
 		<div class="tab-pane fade" id="tab5">
-			<h3>Bill History</h3>
-            <table class="table table-hover table-bordered">
-                <tr>
-                    <th>Last Name</th>
-                    <th>First Name</th>
-                    <th>Job Date</th>
-                    <th>Total Cost</th>
-                    <th>Completed</th>
-                    <th>Paid</th>
-					<th>Overdue</th>
-                </tr>
-        		{% for bill in bill_list %}
-        		    <tr>
-        		        {% for field in bill.values() %}
-        		            <td>{{field}}</td>
-        		        {% endfor %}
-        		    </tr>
-        		{% endfor %}
-            </table>
+            <div class="container mt-5">
+                <div class="mb-4">
+			        <h3>All bill history</h3>
+                    <table class="table table-hover table-bordered">
+                        <tr>
+                            <th>Last Name</th>
+                            <th>First Name</th>
+                            <th>Job Date</th>
+                            <th>Total Cost</th>
+                            <th>Completed</th>
+                            <th>Paid</th>
+			        		<th>Overdue</th>
+                        </tr>
+                		{% for bill in bill_list %}
+                		    <tr>
+                		        {% for field in bill.values() %}
+                		            <td>{{field}}</td>
+                		        {% endfor %}
+                		    </tr>
+                		{% endfor %}
+                    </table>
+			    </div>
+			</div>
 		</div>
     </div>
 </div>
