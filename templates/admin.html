@@ -186,9 +186,9 @@
                                 {% endfor %}
                             </select>
                         </div>
-						<div class="mb-3">
-                            <label for="customer" class="form-label">Date:</label>
-                            <input type="text" name="date" class="form-control mb-3" placeholder="Input date of format: YYYY-MM-DD. e.g.1970-12-31">
+                        <div class="mb-3">
+							<label for="dateSelect">Date:</label>
+							<input type="date" class="form-control" id="dateSelect" name="dateSelect" min="{{ min_date }}">
 						</div>
                         <div class="mb-3">
                             <label for="service" class="form-label">Service:</label>

@@ -4,7 +4,7 @@ from flask import request
 from flask import redirect
 from flask import url_for
 import re
-from datetime import datetime
+from datetime import date
 import mysql.connector
 from mysql.connector import FieldType
 import connect
@@ -144,12 +144,13 @@ def complete_job(job_id):
 
 @app.route("/admin", methods=['GET','POST'])
 def admin():
-    connection = getCursor()
-    # cust_name = request.form.get('searchInput')
     cust_name = '' 
     cust_nmae_query = f"%{cust_name}%"
     cust_names = (cust_nmae_query, cust_nmae_query, cust_nmae_query)
 
+    today = date.today().isoformat()
+
+    connection = getCursor()
     connection.execute('''
         select a.customer_id,
                ifnull(a.first_name, '')  first_name,
@@ -234,7 +235,16 @@ def admin():
             ''', cust_names)
         customerList = connection.fetchall()
     
-    return render_template("admin.html", customer_list = customerList, unpaid_list = unpaidList, bill_list=billList, service_list=serviceList, part_list=partList, all_customer=all_customer, all_services=all_services, all_parts=all_parts)
+    return render_template("admin.html",
+                           customer_list = customerList,
+                           unpaid_list = unpaidList,
+                           bill_list=billList,
+                           service_list=serviceList,
+                           part_list=partList,
+                           all_customer=all_customer,
+                           all_services=all_services,
+                           all_parts=all_parts,
+                           min_date=today)
 
 @app.route("/admin/add_cust", methods=['POST'])
 def add_customer():
@@ -295,7 +305,7 @@ def add_service():
 @app.route("/admin/schedule_job", methods=['POST'])
 def add_job():
     cust_id = request.form.get('customer')
-    date = request.form.get('date')
+    date = request.form.get('dateSelect')
     svc_id = request.form.get('service')
     svc_qty = request.form.get('service_quantity')
     part_id = request.form.get('part')
