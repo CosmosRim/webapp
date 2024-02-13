@@ -75,10 +75,18 @@
                 <h3 class="mb-4">New Customer</h3>
                 <form method="post" action="/admin/add_cust">
                     <div class="mb-3">
-                        <label for="inputField" class="form-label">Customer Name:</label>
-                        <input type="text" name="customer_first_name" id="customer_first_name" class="form-control" placeholder="Please enter customer First Name" pattern="[A-Za-z\s]+">
-                        <input type="text" name="customer_family_name" id="customer_family_name" class="form-control" placeholder="Please enter customer Family Name" pattern="[A-Za-z\s]+">
+                        <label for="inputField" class="form-label">Customer name:</label>
+				        <div class="d-flex align-items-center">
+				            <div class="col-md-6">
+                            <input type="text" name="customer_first_name" id="customer_first_name" class="form-control" placeholder="Please enter customer First Name" pattern="[A-Za-z\s]+">
+							</div>
+				            <div class="col-md-6">
+                            <input type="text" name="customer_family_name" id="customer_family_name" class="form-control" placeholder="Please enter customer Family Name" pattern="[A-Za-z\s]+">
+							</div>
+						</div>
+                        <label for="inputField" class="form-label">Email address:</label>
                         <input type="text" name="customer_email" id="customer_email" class="form-control" placeholder="Please enter customer email" pattern="[0-9A-Za-z\s@.]+">
+                        <label for="inputField" class="form-label">Phone number:</label>
                         <input type="text" name="customer_phone" id="customer_phone" class="form-control" placeholder="Please enter customer phone" pattern="[0-9]+">
                     </div>
                     <button type="submit" class="btn btn-success">Create New Customer</button>
@@ -91,13 +99,21 @@
                     <h3>New Part</h3>
                     <form method="post" action="/admin/add_part">
                         <div class="mb-3">
-                            <label for="inputField" class="form-label">Part Name:</label>
-                            <input type="text" name="part_name" id="part_name" class="form-control" placeholder="Enter part name">
-                            <input type="text" name="part_price" id="part_price" class="form-control" placeholder="Enter part price" pattern="[0-9.]+">
+                            <label for="inputField" class="form-label">Part Info:</label>
+				            <div class="d-flex align-items-center">
+				                <div class="col-md-6">
+                                    <input type="text" name="part_name" id="part_name" class="form-control" placeholder="Enter part name">
+								</div>
+				                <div class="col-md-4">
+                                   <input type="text" name="part_price" id="part_price" class="form-control" placeholder="Enter part price" pattern="[0-9.]+">
+								</div>
+				                <div class="col-md-3">
+									<button type="submit" class="btn btn-success">Create New Part</button>
+								</div>
+							</div>
                         </div>
-                        <button type="submit" class="btn btn-success">Create New Part</button>
                     </form>
-                    <h3>Current Part</h3>
+                    <h3>Current Parts</h3>
                     <table class="table table-bordered">
                         <thead>
                         <tr>
@@ -124,12 +140,20 @@
                     <form method="post" action="/admin/add_svc">
                         <div class="mb-3">
                             <label for="inputField" class="form-label">Service Name:</label>
-                            <input type="text" name="service_name" id="service_name" class="form-control" placeholder="Enter additional information">
-                            <input type="text" name="service_price" id="service_price" class="form-control" placeholder="Enter part price" pattern="[0-9.]+">
+				            <div class="d-flex align-items-center">
+				                <div class="col-md-6">
+									<input type="text" name="service_name" id="service_name" class="form-control" placeholder="Enter additional information">
+								</div>
+				                <div class="col-md-4">
+									<input type="text" name="service_price" id="service_price" class="form-control" placeholder="Enter part price" pattern="[0-9.]+">
+								</div>
+				                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-success">Create New Service</button>
+								</div>
+							</div>
                         </div>
-                        <button type="submit" class="btn btn-success">Create New Service</button>
                     </form>
-                    <h3>Current Service</h3>
+                    <h3>Current Services</h3>
                     <table class="table table-bordered">
                         <thead>
                         <tr>
@@ -204,15 +228,40 @@
                         <th>Customer</th>
                         <th>Amount Due</th>
                         <th>Payment Status</th>
+                        <!-- <th>Operation</th> -->
                     </tr>
         		    {%for unpaid in unpaid_list %}
         		       <tr>
-        		           {% for field in unpaid.values() %}
-        		               <td>{{field}}</td>
-        		           {% endfor %}
+        		            {% for field in unpaid.values() %}
+        		                <td>{{field}}</td>
+        		            {% endfor %}
+							<!-- <td>
+								<form method="POST" action="/admin/update_bill">
+									<input type="hidden" name="bill_id" value="{{ unpaid[0] }}">
+									<select name="payment_status">
+										<option value=0 >No</option>
+										<option value=1 >Yes</option>
+									</select>
+									<button type="submit">Update</button>
+								</form>
+							</td> -->
         		       </tr>
         		    {%endfor %}
                 </table>
+                <h3>Pay bill</h3>
+				<div class="d-flex align-items-center">
+				    <form method="POST" action="/admin/update_bill" class="row g-2">
+				    <div class="col-md-4">
+				        <label for="quantity" class="form-label">Bill Id for pay:</label>
+					</div>
+				    <div class="col-md-3">
+				    	<input type="number" name="bill_id" id="bill_id" class="form-control" min="1">
+					</div>
+				    <div class="col-md-2">
+				    	<button type="submit" class="btn btn-success">Pay</button>
+					</div>
+					</form>
+				</div>
 			</div>
         </div>
 		<div class="tab-pane fade" id="tab5">

@@ -136,7 +136,7 @@ def complete_job(job_id):
     # Update database
     print(f"Completing Job ID: {job_id}")
     data = ("1", job_id)
-    connection.execute("UPDATE job SET completed = %s where job_id = %s", data)
+    connection.execute("update job set completed = %s where job_id = %s", data)
 
     # Render the template with the form
     return redirect(f"/job/{job_id}")
@@ -250,8 +250,8 @@ def add_customer():
     # Update database
     print(f"customer_id:{cust_id}, customer_first_name: {cust_first_name}, customer_last_name: {cust_family_name}, custmer_email: {cust_email}, customer_phone:{cust_phone}")
     inster_stmt=('''
-                INSERT INTO customer (customer_id, first_name, family_name, email, phone) 
-                VALUES (%s, %s, %s, %s, %s)''')
+                insert into customer (customer_id, first_name, family_name, email, phone) 
+                values (%s, %s, %s, %s, %s)''')
     data = (cust_id, cust_first_name, cust_family_name, cust_email,cust_phone)
     connection.execute(inster_stmt, data)
     # connection.close()
@@ -269,7 +269,7 @@ def add_part():
     part_price = request.form.get('part_price')
     # Update database
     print(f"part_id:{part_id}, part_name: {part_name}, part_price: {part_price}")
-    inster_stmt=("INSERT INTO part (part_id, part_name, cost) VALUES (%s, %s, %s)")
+    inster_stmt=("insert into part (part_id, part_name, cost) values (%s, %s, %s)")
     data = (part_id, part_name, part_price)
     connection.execute(inster_stmt, data)
 
@@ -286,7 +286,7 @@ def add_service():
     svc_price = request.form.get('service_price')
     # Update database
     print(f"service_id:{svc_id}, service_name: {svc_name}, service_price: {svc_price}")
-    inster_stmt=("INSERT INTO service (service_id, service_name, cost) VALUES (%s, %s, %s)")
+    inster_stmt=("insert into service (service_id, service_name, cost) values (%s, %s, %s)")
     data = (svc_id, svc_name, svc_price)
     connection.execute(inster_stmt, data)
 
@@ -317,8 +317,8 @@ def add_job():
     # Update database
     print(f"job_id:{job_id}, date:{date}, customer_id:{cust_id}, service_id: {svc_id}, service_quentity: {svc_qty}, part_id:{part_id}, part_quentity:{part_qty}, total_cost:{total_cost}")
     inster_stmt=('''
-                INSERT INTO job (job_id, job_date, customer, total_cost, completed, paid) 
-                VALUES (%s, %s, %s, %s, %s, %s)
+                insert into job (job_id, job_date, customer, total_cost, completed, paid) 
+                values (%s, %s, %s, %s, %s, %s)
                 ''')
     data = (job_id, date, cust_id, total_cost, "0", "0")
     connection.execute(inster_stmt, data)
@@ -332,6 +332,20 @@ def add_job():
     connection.execute(inster_stmt, data)
 
     return redirect(url_for("admin", anchor='tab3'))
+
+@app.route("/admin/update_bill", methods=['POST'])
+def update_bills():
+
+    bill_id = request.form.get('bill_id')
+    # bill_status = request.form.get('payment_status')
+    # Update database
+    # print(request.form)
+    # print(bill_id:{bill_id}, payment_status: {bill_status}")
+    update_stmt=("update job a set a.paid=1 where a.job_id=%s;")
+    connection = getCursor()
+    connection.execute(update_stmt, (bill_id,))
+
+    return redirect(url_for("admin", anchor='tab4'))
 
 if __name__ == '__main__':
     app.run()
