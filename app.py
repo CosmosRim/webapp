@@ -147,6 +147,9 @@ def admin():
     cust_name = '' 
     cust_nmae_query = f"%{cust_name}%"
     cust_names = (cust_nmae_query, cust_nmae_query, cust_nmae_query)
+    cust_name_unpaid = ''
+    cust_nmae_unpaid_query = f"%{cust_name_unpaid}%"
+    cust_names_unpaid = (cust_nmae_unpaid_query, cust_nmae_unpaid_query, cust_nmae_unpaid_query)
 
     today = date.today().isoformat()
 
@@ -167,16 +170,20 @@ def admin():
     customerList = connection.fetchall()
 
     connection.execute('''
-        select a.job_id,
-               concat(ifnull(b.first_name, ''), ' ', ifnull(b.family_name, '')) customer_name,
-               a.job_date,
-               case when a.paid = 1 then 'Yes' else 'No' end                    paid
-        from job a,
-             customer b
-        where a.paid = 0
-          and a.customer = b.customer_id
-        order by  a.job_date, b.family_name, b.first_name;
-        ''')
+          select a.job_id,
+                 concat(ifnull(b.first_name, ''), ' ', ifnull(b.family_name, '')) customer_name,
+                 a.job_date,
+                 case when a.paid = 1 then 'Yes' else 'No' end                    paid
+            from job a,
+                 customer b
+           where a.paid = 0
+             and a.customer = b.customer_id
+             and (upper(replace(b.first_name, ' ', '')) like upper(replace(%s, ' ', ''))
+              or upper(replace(b.family_name, ' ', '')) like upper(replace(%s, ' ', ''))
+              or upper(replace(concat(ifnull(b.first_name, ' '), ' ', ifnull(b.family_name, ' ')), ' ', ''))
+                 like upper(replace(%s, ' ', '')))
+        order by a.job_date, b.family_name, b.first_name;
+        ''', cust_names_unpaid)
     unpaidList = connection.fetchall()
 
     connection.execute('''
@@ -236,6 +243,27 @@ def admin():
             order by ifnull(a.first_name, 'ZZZZ'), ifnull(a.family_name, 'ZZZZ');
             ''', cust_names)
         customerList = connection.fetchall()
+		
+        cust_name_unpaid = request.form.get('searchInputUnpaid')
+        cust_nmae_unpaid_query = f"%{cust_name_unpaid}%"
+        cust_names_unpaid = (cust_nmae_unpaid_query, cust_nmae_unpaid_query, cust_nmae_unpaid_query)
+  
+        connection.execute('''
+              select a.job_id,
+                     concat(ifnull(b.first_name, ''), ' ', ifnull(b.family_name, '')) customer_name,
+                     a.job_date,
+                     case when a.paid = 1 then 'Yes' else 'No' end                    paid
+                from job a,
+                     customer b
+               where a.paid = 0
+                 and a.customer = b.customer_id
+                 and (upper(replace(b.first_name, ' ', '')) like upper(replace(%s, ' ', ''))
+                  or upper(replace(b.family_name, ' ', '')) like upper(replace(%s, ' ', ''))
+                  or upper(replace(concat(ifnull(b.first_name, ' '), ' ', ifnull(b.family_name, ' ')), ' ', ''))
+                     like upper(replace(%s, ' ', '')))
+            order by a.job_date, b.family_name, b.first_name;
+            ''', cust_names_unpaid)
+        unpaidList = connection.fetchall()
     
     return render_template("admin.html",
                            customer_list = customerList,

@@ -221,6 +221,13 @@
         </div>
         <div class="tab-pane fade" id="tab4">
             <div class="container mt-5">
+                <h3>Search customer's unpaid bills:</h3>
+                <form method="post" action="/admin" class="mb-3">
+                    <div class="mb-3">
+                        <input type="text" name="searchInputUnpaid" class="form-control mb-3" placeholder="Search existing customers">
+                        <button type="submit" class="btn btn-primary">Search for Customer</button>
+				    </div>
+				</form>
                 <h3>All unpaid bills</h3>
                 <table class="table table-hover table-bordered">
                     <tr>
