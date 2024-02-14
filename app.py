@@ -161,7 +161,8 @@ def admin():
          where upper(replace(first_name, ' ', '')) like upper(replace(%s, ' ', ''))
             or upper(replace(family_name, ' ', '')) like upper(replace(%s, ' ', ''))
             or upper(replace(concat(ifnull(a.first_name, ' '), ' ', ifnull(a.family_name, ' ')), ' ', ''))
-               like upper(replace(%s, ' ', ''));
+               like upper(replace(%s, ' ', ''))
+            order by ifnull(a.first_name, 'ZZZZ'), ifnull(a.family_name, 'ZZZZ');
         ''', cust_names)
     customerList = connection.fetchall()
 
@@ -174,7 +175,7 @@ def admin():
              customer b
         where a.paid = 0
           and a.customer = b.customer_id
-        order by b.family_name, b.first_name, a.job_date;
+        order by  a.job_date, b.family_name, b.first_name;
         ''')
     unpaidList = connection.fetchall()
 
@@ -222,16 +223,17 @@ def admin():
         cust_names = (cust_nmae_query, cust_nmae_query, cust_nmae_query)
 
         connection.execute('''
-            select a.customer_id,
+		    select a.customer_id,
                    ifnull(a.first_name, '')  first_name,
                    ifnull(a.family_name, '') family_name,
                    a.email,
-                   a.phone
+                   a.phone,
               from customer a
              where upper(replace(first_name, ' ', '')) like upper(replace(%s, ' ', ''))
                 or upper(replace(family_name, ' ', '')) like upper(replace(%s, ' ', ''))
                 or upper(replace(concat(ifnull(a.first_name, ' '), ' ', ifnull(a.family_name, ' ')), ' ', ''))
-                   like upper(replace(%s, ' ', ''));
+                   like upper(replace(%s, ' ', ''))
+            order by ifnull(a.first_name, 'ZZZZ'), ifnull(a.family_name, 'ZZZZ');
             ''', cust_names)
         customerList = connection.fetchall()
     
