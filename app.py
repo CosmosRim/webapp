@@ -227,7 +227,7 @@ def admin():
                    ifnull(a.first_name, '')  first_name,
                    ifnull(a.family_name, '') family_name,
                    a.email,
-                   a.phone,
+                   a.phone
               from customer a
              where upper(replace(first_name, ' ', '')) like upper(replace(%s, ' ', ''))
                 or upper(replace(family_name, ' ', '')) like upper(replace(%s, ' ', ''))
